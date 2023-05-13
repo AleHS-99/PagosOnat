@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -6,6 +6,7 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'bd.sqlite')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
+app.secret_key = 'clave_secreta_aqui'
 db = SQLAlchemy(app)
 
 #Diseño base de datos
@@ -113,9 +114,34 @@ def cod_add():
                                       porcentaje_mora1=pc_1,porcentaje_mora2=pc_2,porcentaje_mora3=pc_3)
             db.session.add(n_codigo)
             db.session.commit()
+        flash('El código ha sido añadido correctamente.')
         return redirect('/codigo')
     else:
         return render_template('cod_add.html')
+    
+@app.route('/codigo/delete/<string:tipo>/<int:id>', methods=['GET', 'POST'])
+def delete_cod(tipo,id):
+    s=0
+    if tipo == 'simple':
+        s = db.session.query(CodigoSimple).get_or_404(id)
+    elif tipo == 'salario':
+        pass
+    else:
+        pass
+    if request.method=='GET':
+        if not s==0:
+            return render_template('cod_delete.html', codigo=s.codigo)
+        else:
+            return render_template('cod_delete.html')
+    elif request.method=='POST':
+        if not s==0:
+            db.session.delete(s)
+            db.session.commit()
+            flash('El código ha sido eliminado correctamente.')
+        return redirect('/codigo')
+    else:
+        return render_template('cod_delete.html')
+
 
 def create_all_tables():
     with app.app_context():
