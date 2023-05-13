@@ -17,7 +17,7 @@
         {% if messages %}
         <div class="flashes">
           {% for message in messages %}
-          <div class="alert {% if 'eliminado' in message %}alert-warning{% elif 'añadido' in message %}alert-success{% elif 'editado' in message %}alert-info{% else %}alert-danger{% endif %}" role="alert">{{ message }}</div>
+          <div class="alert {% if 'eliminado' in message %}alert-warning{% elif 'añadido' in message %}alert-success{% elif 'editado' in message %}alert-info{% else %}alert-success{% endif %}" role="alert">{{ message }}</div>
           {% endfor %}
         </div>
         {% endif %}
@@ -47,14 +47,14 @@
                       <td>{{i[2]}}</td>
                       <td>
                         {% if i[3] == 'simple' %}
-                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="{{ url_for('cod_edit', tipo='simple',id=i[0]) }}" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
                         <a href="{{ url_for('delete_cod', tipo='simple',id=i[0]) }}" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
                         {% elif i[3] == 'salario' %}
-                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
-                        <a href="#" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
+                        <a href="{{ url_for('cod_edit', tipo='salario',id=i[0]) }}" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="{{ url_for('delete_cod', tipo='salario',id=i[0]) }}" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
                         {% elif i[3] == 'mora' %}
-                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
-                        <a href="#" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
+                        <a href="{{ url_for('cod_edit', tipo='mora',id=i[0]) }}" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="{{ url_for('delete_cod', tipo='mora',id=i[0]) }}" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
                         {% endif %}
                       </td>
                     </tr>

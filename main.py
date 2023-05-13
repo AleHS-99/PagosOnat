@@ -110,8 +110,9 @@ def cod_add():
             pc_1 = request.form.get('porcentaje_mora1')
             pc_2 = request.form.get('porcentaje_mora2')
             pc_3 = request.form.get('porcentaje_mora3')
+            pc_32 = request.form.get('porcentaje_mora4')
             n_codigo = CodigoPagoMora(codigo=codigo, descripcion=desc,dias_mora1=d1,dias_mora2=d2,dias_mora3=d3,
-                                      porcentaje_mora1=pc_1,porcentaje_mora2=pc_2,porcentaje_mora3=pc_3)
+                                      porcentaje_mora1=pc_1,porcentaje_mora2=pc_2,porcentaje_mora3=pc_3,porcentaje_mora3_2=pc_32)
             db.session.add(n_codigo)
             db.session.commit()
         flash('El código ha sido añadido correctamente.')
@@ -122,25 +123,129 @@ def cod_add():
 @app.route('/codigo/delete/<string:tipo>/<int:id>', methods=['GET', 'POST'])
 def delete_cod(tipo,id):
     s=0
+    ps = 0
+    pm = 0
     if tipo == 'simple':
         s = db.session.query(CodigoSimple).get_or_404(id)
     elif tipo == 'salario':
-        pass
+        ps = db.session.query(CodigoPagoSalarial).get_or_404(id)
+    elif tipo == 'mora':
+        pm = db.session.query(CodigoPagoMora).get_or_404(id)
     else:
         pass
     if request.method=='GET':
         if not s==0:
             return render_template('cod_delete.html', codigo=s.codigo)
+        elif not ps==0:
+            return render_template('cod_delete.html', codigo=ps.codigo)
+        elif not pm==0:
+            return render_template('cod_delete.html', codigo=pm.codigo)
         else:
-            return render_template('cod_delete.html')
+            return redirect('/codigo')
     elif request.method=='POST':
         if not s==0:
             db.session.delete(s)
             db.session.commit()
             flash('El código ha sido eliminado correctamente.')
+        elif not ps==0:
+            db.session.delete(ps)
+            db.session.commit()
+            flash('El código ha sido eliminado correctamente.')
+        elif not pm==0:
+            db.session.delete(pm)
+            db.session.commit()
+            flash('El código ha sido eliminado correctamente.')
         return redirect('/codigo')
     else:
         return render_template('cod_delete.html')
+
+@app.route('/codigo/edit/<string:tipo>/<int:id>/', methods=['GET', 'POST'])
+def cod_edit(tipo,id):
+    s=0
+    ps = 0
+    pm = 0
+    if tipo == 'simple':
+        s = db.session.query(CodigoSimple).get_or_404(id)
+    elif tipo == 'salario':
+        ps = db.session.query(CodigoPagoSalarial).get_or_404(id)
+    elif tipo == 'mora':
+        pm = db.session.query(CodigoPagoMora).get_or_404(id)
+    else:
+        pass
+    if request.method=='GET':
+        if not s==0:
+            return render_template('cod_edit.html', tipo=tipo, obj=s)
+        elif not ps==0:
+            return render_template('cod_edit.html', tipo=tipo, obj=ps)
+        elif not pm==0:
+            return render_template('cod_edit.html', tipo=tipo, obj=pm)
+        else:
+            return redirect('/codigo')
+    elif request.method=='POST':
+        codigo = request.form.get('codigo')
+        desc = request.form.get('descripcion')
+        if not s == 0:
+            fecha = request.form.get('fecha_pago')
+            pc = request.form.get('porcentaje')
+            s.codigo=codigo 
+            s.descripcion=desc
+            s.porcentaje=pc
+            s.fecha_pago=fecha
+            db.session.commit()
+        elif not ps == 0:
+            fecha = request.form.get('fecha_pago')
+            s_excento = request.form.get('salario_excento')
+            s_1 = request.form.get('tope1')
+            s_2 = request.form.get('tope2')
+            s_3 = request.form.get('tope3')
+            s_4 = request.form.get('tope4')
+            s_5 = request.form.get('tope5')
+            s_6 = request.form.get('tope6')
+            pc_1 = request.form.get('porcentaje1')
+            pc_2 = request.form.get('porcentaje2')
+            pc_3 = request.form.get('porcentaje3')
+            pc_4 = request.form.get('porcentaje4')
+            pc_5 = request.form.get('porcentaje5')
+            pc_6 = request.form.get('porcentaje6')
+            ps.codigo=codigo
+            ps.descripcion=desc
+            ps.fecha_pago=fecha
+            ps.monto_excento= s_excento
+            ps.monto_pago1=s_1
+            ps.monto_pago2=s_2
+            ps.monto_pago3=s_3
+            ps.monto_pago4=s_4
+            ps.monto_pago5=s_5
+            ps.monto_pago6=s_6
+            ps.porcentaje1=pc_1
+            ps.porcentaje2=pc_2
+            ps.porcentaje3=pc_3
+            ps.porcentaje4=pc_4
+            ps.porcentaje5=pc_5
+            ps.porcentaje6=pc_6
+            db.session.commit()
+        else:
+            d1 = request.form.get('dias_mora1')
+            d2 = request.form.get('dias_mora2')
+            d3 = request.form.get('dias_mora3')
+            pc_1 = request.form.get('porcentaje_mora1')
+            pc_2 = request.form.get('porcentaje_mora2')
+            pc_3 = request.form.get('porcentaje_mora3')
+            pc_32 = request.form.get('porcentaje_mora4')
+            pm.codigo=codigo
+            pm.descripcion=desc
+            pm.dias_mora1=d1
+            pm.dias_mora2=d2
+            pm.dias_mora3=d3
+            pm.porcentaje_mora1=pc_1
+            pm.porcentaje_mora2=pc_2
+            pm.porcentaje_mora3=pc_3
+            pm.porcentaje_mora3_2=pc_32
+            db.session.commit()
+        flash('El código ha sido Editado correctamente.')
+        return redirect('/codigo')
+    else:
+        return render_template('cod_edit.html')
 
 
 def create_all_tables():
