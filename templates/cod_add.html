@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content">
+    <p></p>
+    <div class="container">
+    <div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+              <form method="post">
+                <div class="form-group">
+                  <label for="codigo">Código</label>
+                  <input type="text" placeholder="0730122" class="form-control" id="codigo" name="codigo" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <input type="text" placeholder="Impuesto sobre documentos" class="form-control" id="descripcion" name="descripcion" required>
+                  </div>
+                <div class="form-group">
+                  <label for="tipo">Tipo de código</label>
+                  <select class="form-control" id="tipo" name="tipo" onchange="mostrarCamposAdicionales()">
+                    <option value="simple">Simple</option>
+                    <option value="pago_salarial">Pago salarial</option>
+                    <option value="pago_mora">Pago por mora</option>
+                  </select>
+                </div>
+                <!-- Campos adicionales para el tipo "simple" -->
+                <div id="campos_simple" style="display: block;">
+                  <div class="form-group">
+                    <label for="fecha_pago">Fecha de pago</label>
+                    <select class="form-control" id="fecha_pago" name="fecha_pago">
+                      <option value="mensual">Mensual</option>
+                      <option value="trimestral">Trimestral</option>
+                      <option value="anual">Anual</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="porcentaje">Porcentaje a pagar</label>
+                    <input type="number" class="form-control" id="porcentaje" name="porcentaje" value="0" min="0" max="100" step="0.1">
+                  </div>
+                </div>
+                <!-- Campos adicionales para el tipo "pago_salarial" -->
+                <div id="campos_pago_salarial" style="display: none;">
+                  <div class="form-group">
+                    <label for="fecha_pago">Fecha de pago</label>
+                    <select class="form-control" id="fecha_pago" name="fecha_pago">
+                      <option value="mensual">Mensual</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="salario_excento">Salario exento</label>
+                    <input type="number" class="form-control" id="salario_excento" name="salario_excento">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="tope1">Tope salarial 1</label>
+                        <input type="number" class="form-control" id="tope1" name="tope1">
+                      </div>
+                      <div class="form-group">
+                        <label for="tope2">Tope salarial 2</label>
+                        <input type="number" class="form-control" id="tope2" name="tope2">
+                      </div>
+                      <div class="form-group">
+                        <label for="tope3">Tope salarial 3</label>
+                        <input type="number" class="form-control" id="tope3" name="tope3">
+                      </div>
+                      <div class="form-group">
+                        <label for="tope4">Tope salarial 4</label>
+                        <input type="number" class="form-control" id="tope4" name="tope4">
+                      </div>
+                      <div class="form-group">
+                        <label for="tope5">Tope salarial 5</label>
+                        <input type="number" class="form-control" id="tope5" name="tope5">
+                      </div>
+                      <div class="form-group">
+                        <label for="tope6">Tope salarial 6</label>
+                        <input type="number" class="form-control" id="tope6" name="tope6">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="porcentaje1">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje1" name="porcentaje1" value="0" min="0" max="100" step="0.1">
+                          </div>
+                          <div class="form-group">
+                            <label for="porcentaje2">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje2" name="porcentaje2" value="0" min="0" max="100" step="0.1">
+                          </div>
+                          <div class="form-group">
+                            <label for="porcentaje3">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje3" name="porcentaje3" value="0" min="0" max="100" step="0.1">
+                          </div>
+                        <div class="form-group">
+                            <label for="porcentaje4">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje4" name="porcentaje4" value="0" min="0" max="100" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="porcentaje5">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje5" name="porcentaje5" value="0" min="0" max="100" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="porcentaje6">% a pagar</label>
+                            <input type="number" class="form-control" id="porcentaje6" name="porcentaje6" value="0" min="0" max="100" step="0.1">
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Campos adicionales para el tipo "pago_mora" -->
+                <div id="campos_pago_mora" style="display: none;">
+                    <div class="row">
+                    <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="dias_mora1">Días hábiles de mora 1</label>
+                    <input type="number" class="form-control" id="dias_mora1" name="dias_mora1">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dias_mora2">Días hábiles de mora 2</label>
+                    <input type="number" class="form-control" id="dias_mora2" name="dias_mora2">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dias_mora3">M&aacute;s de d&iacute;s h&acute;biles</label>
+                    <input type="number" class="form-control" id="dias_mora3" name="dias_mora3">
+                  </div>
+                  
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="porcentaje_mora1">% a pagar del principal adeudado</label>
+                        <input type="number" class="form-control" id="porcentaje_mora1" name="porcentaje_mora1" value="0" min="0" max="100" step="0.1">
+                      </div>
+                    <div class="form-group">
+                        <label for="porcentaje_mora2">% a pagar del principal adeudado</label>
+                        <input type="number" class="form-control" id="porcentaje_mora2" name="porcentaje_mora2" value="0" min="0" max="100" step="0.1">
+                      </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="porcentaje_mora3">% a pagar por cada d&iacute;a de mora</label>
+                            </div>
+                            <div class="form-group" style="margin-top: -6%;">
+                                <input type="number" class="form-control" id="porcentaje_mora3" name="porcentaje_mora3" value="0" min="0" max="100" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="porcentaje_mora4">% apagar del principal</label>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: -6%;">
+                                <input type="number" class="form-control" id="porcentaje_mora4" name="porcentaje_mora4" value="0" min="0" max="100" step="0.1">
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+                <!-- Botón para enviar el formulario -->
+                <button type="submit" class="btn btn-primary">Enviar</button>
+              </form>
+            </div>
+          </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <script>
+        function mostrarCamposAdicionales() {
+            var tipoCodigo = document.getElementById("tipo").value;
+            if (tipoCodigo == "simple") {
+                document.getElementById("campos_simple").style.display = "block";
+                document.getElementById("campos_pago_salarial").style.display = "none";
+                document.getElementById("campos_pago_mora").style.display = "none";
+            } else if (tipoCodigo == "pago_salarial") {
+                document.getElementById("campos_simple").style.display = "none";
+                document.getElementById("campos_pago_salarial").style.display = "block";
+                document.getElementById("campos_pago_mora").style.display = "none";
+            } else {
+                document.getElementById("campos_simple").style.display = "none";
+                document.getElementById("campos_pago_salarial").style.display = "none";
+                document.getElementById("campos_pago_mora").style.display = "block";
+            }
+            }
+    </script>
+{% endblock %}
