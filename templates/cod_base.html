@@ -33,98 +33,24 @@
                   </tr>
                   </thead>
                   <tbody>
+                    {% for i in list %}
                     <tr>
-                      <td>Trident</td>
-                      <td>Internet
-                        Explorer 4.0
+                      <td>{{i[1]}}</td>
+                      <td>{{i[2]}}</td>
+                      <td>
+                        {% if i[3] == 'simple' %}
+                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
+                        {% elif i[3] == 'salario' %}
+                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
+                        {% elif i[3] == 'mora' %}
+                        <a href="#" class="btn btn-warning btn-xs btn-flat"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash-alt"></i></a>
+                        {% endif %}
                       </td>
-                      <td>Win 95+</td>
                     </tr>
-                    <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-                      <tr>
-                        <td>e</td>
-                        <td>e
-                          Explorer 1.0
-                        </td>
-                        <td>Win 95+</td>
-                      </tr>
-
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

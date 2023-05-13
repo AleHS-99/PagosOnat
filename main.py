@@ -55,7 +55,18 @@ def Home():
 
 @app.route('/codigo')
 def cod_base():
-    return render_template('cod_base.html')
+    c_simple = db.session.query(CodigoSimple).all()
+    c_pagoSalario = db.session.query(CodigoPagoSalarial).all()
+    c_pagoMora = db.session.query(CodigoPagoMora).all()
+    list = []
+    for i in c_simple:
+        list.append((i.id,i.codigo,i.descripcion,'simple'))
+    for i in c_pagoSalario:
+        list.append((i.id,i.codigo,i.descripcion,'salario'))
+    for i in c_pagoMora:
+        list.append((i.id,i.codigo,i.descripcion,'mora'))
+    return render_template('cod_base.html',list=list)
+
 @app.route('/codigo/add', methods=['GET', 'POST'])
 def cod_add():
     if request.method =='GET':
