@@ -54,6 +54,7 @@ class CodigoPagoMora(db.Model):
 def Home():
     return render_template('index.html')
 
+#Codigo Tributario
 @app.route('/codigo')
 def cod_base():
     c_simple = db.session.query(CodigoSimple).all()
@@ -68,6 +69,7 @@ def cod_base():
         list.append((i.id,i.codigo,i.descripcion,'mora'))
     return render_template('cod_base.html',list=list)
 
+#Codigo Tributario Add
 @app.route('/codigo/add', methods=['GET', 'POST'])
 def cod_add():
     if request.method =='GET':
@@ -119,7 +121,8 @@ def cod_add():
         return redirect('/codigo')
     else:
         return render_template('cod_add.html')
-    
+  
+#Codigo Tributario   Delete
 @app.route('/codigo/delete/<string:tipo>/<int:id>', methods=['GET', 'POST'])
 def delete_cod(tipo,id):
     s=0
@@ -159,6 +162,7 @@ def delete_cod(tipo,id):
     else:
         return render_template('cod_delete.html')
 
+#Codigo Tributario Edit
 @app.route('/codigo/edit/<string:tipo>/<int:id>/', methods=['GET', 'POST'])
 def cod_edit(tipo,id):
     s=0
@@ -248,6 +252,12 @@ def cod_edit(tipo,id):
         return render_template('cod_edit.html')
 
 
+#Contrataciones
+@app.route('/contrato')
+def contrat_base():
+    return render_template('contract_base.html')
+
+#Crear Tablas BD
 def create_all_tables():
     with app.app_context():
         db.create_all()
