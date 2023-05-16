@@ -1,13 +1,35 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
+from flaskwebgui import FlaskUI
+from werkzeug.serving import WSGIRequestHandler
 import os
 
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'bd.sqlite')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
-app.secret_key = 'clave_secreta_aqui'
+app.secret_key = 'secret!'
 db = SQLAlchemy(app)
+
+def start_flask(**server_kwargs):
+
+    app = server_kwargs.pop("app", None)
+    server_kwargs.pop("debug", None)
+
+    try:
+        import waitress
+
+        waitress.serve(app, **server_kwargs)
+    except:
+        app.run(**server_kwargs)
+
+ui = FlaskUI(app=app,
+             server=start_flask,
+             server_kwargs={
+            "app": app,
+            "port": 3000,
+            "threaded": True,
+        },)
 
 #Diseño base de datos
 class CodigoSimple(db.Model):
@@ -47,7 +69,6 @@ class CodigoPagoMora(db.Model):
     porcentaje_mora3 = db.Column(db.Float)
     porcentaje_mora3_2 = db.Column(db.Float)
     dias_mora3 = db.Column(db.Integer)
-
 
 #Pagina Principal
 @app.route('/')
@@ -251,17 +272,29 @@ def cod_edit(tipo,id):
     else:
         return render_template('cod_edit.html')
 
-
 #Contrataciones
 @app.route('/contrato')
 def contrat_base():
     return render_template('contract_base.html')
+
+#Contrataciones Add
+@app.route('/contrato/add', methods=['GET', 'POST'])
+def contrat_add():
+    if request.method=='GET':
+        return render_template('contract_add.html')
+    elif request.method=='POST':
+        pass
+    else:
+        pass
 
 #Crear Tablas BD
 def create_all_tables():
     with app.app_context():
         db.create_all()
 
+
 if __name__ == '__main__':
     create_all_tables()
-    app.run(debug=True)
+    app.run()
+    #WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    #ui.run()
