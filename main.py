@@ -70,6 +70,28 @@ class CodigoPagoMora(db.Model):
     porcentaje_mora3_2 = db.Column(db.Float)
     dias_mora3 = db.Column(db.Integer)
 
+class ContratoPersona(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    apellidos = db.Column(db.String(250),nullable=False)
+    ci = db.Column(db.String(11),nullable=False)
+    nit = db.Column(db.String(50),nullable=False)
+    codigos = db.Column(db.String(1800),nullable=False)
+    salario = db.Column(db.Float)
+    fecha_inicio = db.Column(db.String(100))
+    lugar = db.Column(db.String(250))
+    
+class ContratoDueno(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    apellidos = db.Column(db.String(250),nullable=False)
+    ci = db.Column(db.String(11),nullable=False)
+    nit = db.Column(db.String(50),nullable=False)
+    codigos = db.Column(db.String(1800),nullable=False)
+    fecha_inicio = db.Column(db.String(100))
+    lugar = db.Column(db.String(250))
+    cant_trabajadores = db.Column(db.Integer)
+
 #Pagina Principal
 @app.route('/')
 def Home():
@@ -275,15 +297,64 @@ def cod_edit(tipo,id):
 #Contrataciones
 @app.route('/contrato')
 def contrat_base():
-    return render_template('contract_base.html')
+    a = ContratoDueno.query.all()
+    b = ContratoPersona.query.all()
+    lista = []
+    for i in a:
+        lista.append(('Dueño de Negocio',i.nombre,i.apellidos,i.lugar,i.nit))
+    for i in b:
+        lista.append(('Persona Contratada',i.nombre,i.apellidos,i.lugar,i.nit))
+    return render_template('contract_base.html',lista=lista)
 
 #Contrataciones Add
 @app.route('/contrato/add', methods=['GET', 'POST'])
 def contrat_add():
+    cs = CodigoSimple.query.all()
+    cps = CodigoPagoSalarial.query.all()
+    cpm = CodigoPagoMora.query.all()
+    cdno = ContratoDueno.query.all()
+    lugares = []
+    for i in cdno:
+        lugares.append(i.lugar)
+    lista = []
+    for i in cs:
+        lista.append((i.codigo,i.descripcion))
+    for i in cps:
+        lista.append((i.codigo,i.descripcion))
+    for i in cpm:
+        lista.append((i.codigo,i.descripcion))
+        
     if request.method=='GET':
-        return render_template('contract_add.html')
+        return render_template('contract_add.html',lista=lista,negocio=lugares)
     elif request.method=='POST':
-        pass
+        nombre = request.form.get('nombre')
+        apellidos = request.form.get('apellidos')
+        ci = request.form.get('ci')
+        nit = request.form.get('nit')
+        cod = request.form.getlist('codigos[]')
+        separator = ','
+        my_string = separator.join(cod)
+        tipo = request.form.get('tipo_C')
+        if tipo=='Persona':
+            salario = request.form.get('salario')
+            lugar = request.form.get('lugar')
+            fecha = request.form.get('date')
+            n_contrato = ContratoPersona(nombre=nombre, apellidos=apellidos,ci=ci,nit=nit,codigos=my_string,salario=salario,lugar=lugar,
+                                         fecha_inicio=fecha)
+            db.session.add(n_contrato)
+            db.session.commit()
+            flash('El contrato ha sido registrado correctamente.')
+            return redirect('/contrato')
+        else:
+            lugar_2 = request.form.get('lugar_2')
+            date1 = request.form.get('date1')
+            cant = request.form.get('cant')
+            n_contrato = ContratoDueno(nombre=nombre, apellidos=apellidos,ci=ci,nit=nit,codigos=my_string,cant_trabajadores=cant,
+                                       lugar=lugar_2, fecha_inicio=date1)
+            db.session.add(n_contrato)
+            db.session.commit()
+            flash('El contrato ha sido registrado correctamente.')
+            return redirect('/contrato')
     else:
         pass
 
@@ -295,6 +366,6 @@ def create_all_tables():
 
 if __name__ == '__main__':
     create_all_tables()
-    app.run()
-    #WSGIRequestHandler.protocol_version = "HTTP/1.1"
-    #ui.run()
+    #app.run()
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    ui.run()
