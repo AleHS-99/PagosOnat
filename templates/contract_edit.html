@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<p></p>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-plus"></i> A&ntilde;adir Contrato</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6"><!--Izquierda-->
+                        <div class="form-group">
+                            <label for="nombre">Nombre:</label>
+                            <input type="text" placeholder="Nombre del personal Contratado" class="form-control" value="{{obj.nombre}}" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ci">Carnet de Identidad:</label>
+                            <input type="number" oninput="limit_input()" placeholder="Carnet de Identidad" value="{{obj.ci}}" class="form-control" id="ci" name="ci" required>
+                        </div>
+                        
+                    </div>
+                    <div class="col-md-6"><!--Derecha-->
+                        <div class="form-group">
+                            <label for="apellidos">Apellidos:</label>
+                            <input type="text" placeholder="Apellidos del personal Contratado" value="{{obj.apellidos}}" class="form-control" id="apellidos" name="apellidos" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nit">NIT:</label>
+                            <input type="number" placeholder="754236985214" value="{{obj.nit}}" class="form-control" id="nit" name="nit" required>
+                        </div>
+                        
+                    </div>
+                </div>
+                    <div class="form-group w-100"">
+                        <label for="codigos">C&oacute;digos por los que tributa:</label>
+                        <select multiple name="codigos[]" class="form-control">
+                            {% for codigo in lista %}
+                                <option value="{{ codigo.0 }}" {% if codigo.0 in obj.codigos %} selected {% endif %}> {{ codigo.0 }} --{{ codigo.1 }}--</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group w-100"">
+                        <label for="tipo_C">Tipo de contrato:</label>
+                        <select name="tipo_C" id="tipo_C" class="form-control" onchange="mostrarCamposAdicionales()">
+                            {% if tipo=='persona' %}
+                            <option value="Persona"> Persona Contratada </option>
+                            {% else %}
+                            <option value="Dueño"> Due&ntilde;o de Negocio </option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    {% if tipo=='persona' %}
+                    <div id="campos_simple" style="display: block;">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="lugar">Lugar de Trabajo:</label>
+                                    <select name="lugar" id="lugar" class="form-control">
+                                        {% for i in negocio %}
+                                            <option value="i.negocio" {% if i in obj.lugar %} selected {% endif %}> i.negocio </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="date">Fecha:</label>
+                                    <input type="date" class="form-control" value="{{obj.fecha_inicio}}" id="date" name="date">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="salario">Salario:</label>
+                                    <input type="number" step="0.01" placeholder="$ 3266.00" value="{{obj.salario}}" class="form-control" id="salario" name="salario">
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    {% else %}
+                    <div id="campos_dueno" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="lugar_2">Lugar de Trabajo:</label>
+                                    <input type="text" placeholder="Centro de Trabajo Benito P&eacute;rez" class="form-control" id="lugar_2" name="lugar_2">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="date1">Fecha:</label>
+                                    <input type="date" class="form-control" id="date1" name="date1">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group w-100">
+                                    <label for="cant">Cantidad de Trabajadores:</label>
+                                    <input type="number" value="0" min="0"step="1" class="form-control" id="cant" name="cant">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function limit_input() {
+        var field = document.getElementById("ci");
+        var max_length = 11;
+        if (field.value.length > max_length) {
+            field.value = field.value.slice(0, max_length); 
+        }
+        
+    }
+</script> 
+    
+{% endblock %}

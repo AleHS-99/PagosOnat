@@ -301,9 +301,9 @@ def contrat_base():
     b = ContratoPersona.query.all()
     lista = []
     for i in a:
-        lista.append(('Dueño de Negocio',i.nombre,i.apellidos,i.lugar,i.nit))
+        lista.append(('Dueño de Negocio',i.nombre,i.apellidos,i.lugar,i.nit,i.id))
     for i in b:
-        lista.append(('Persona Contratada',i.nombre,i.apellidos,i.lugar,i.nit))
+        lista.append(('Persona Contratada',i.nombre,i.apellidos,i.lugar,i.nit,i.id))
     return render_template('contract_base.html',lista=lista)
 
 #Contrataciones Add
@@ -357,6 +357,108 @@ def contrat_add():
             return redirect('/contrato')
     else:
         pass
+
+@app.route('/contrato/delete/<string:tipo>/<int:id>', methods=['GET', 'POST'])
+def contract_delete(tipo,id):
+    s=0
+    ps = 0
+    if tipo=='persona':
+        s = db.session.query(ContratoPersona).get_or_404(id)
+    else:
+        ps = db.session.query(ContratoDueno).get_or_404(id)
+        
+    if request.method=='GET':
+        if not s==0:
+            return render_template('contract_delete.html', nit=s.nit)
+        elif not ps==0:
+            return render_template('contract_delete.html', nit=ps.nit)
+        else:
+            return redirect('/contrato')
+    elif request.method=='POST':
+        if not s==0:
+            db.session.delete(s)
+            db.session.commit()
+            flash('El Contrato ha sido eliminado correctamente.')
+        elif not ps==0:
+            db.session.delete(ps)
+            db.session.commit()
+            flash('El Contrato ha sido eliminado correctamente.')
+        return redirect('/contrato')
+    else:
+        pass
+
+@app.route('/contrato/edit/<string:tipo>/<int:id>/', methods=['GET', 'POST'])
+def contract_edit(tipo,id):
+    s=0
+    ps = 0
+    cdno = ContratoDueno.query.all()
+    lugares = []
+    for i in cdno:
+        lugares.append(i.lugar)
+        
+    cs = CodigoSimple.query.all()
+    cps = CodigoPagoSalarial.query.all()
+    cpm = CodigoPagoMora.query.all()
+    lista = []
+    for i in cs:
+        lista.append((i.codigo,i.descripcion))
+    for i in cps:
+        lista.append((i.codigo,i.descripcion))
+    for i in cpm:
+        lista.append((i.codigo,i.descripcion))
+    
+    if tipo == 'persona':
+        s = db.session.query(ContratoPersona).get_or_404(id)
+    else:
+        ps = db.session.query(ContratoDueno).get_or_404(id)
+        
+    if request.method=='GET':
+        if not s==0:
+            return render_template('contract_edit.html', tipo=tipo, obj=s, negocio=lugares, lista=lista)
+        elif not ps==0:
+            return render_template('contract_edit.html', tipo=tipo, obj=ps, negocio=lugares, lista=lista)
+        else:
+            return redirect('/contrato')
+    elif request.method=='POST':
+        nombre = request.form.get('nombre')
+        apellidos = request.form.get('apellidos')
+        ci = request.form.get('ci')
+        nit = request.form.get('nit')
+        cod = request.form.getlist('codigos[]')
+        separator = ','
+        my_string = separator.join(cod)
+        if tipo=='persona':
+            salario = request.form.get('salario')
+            lugar = request.form.get('lugar')
+            fecha = request.form.get('date')
+            s.nombre=nombre
+            s.apellidos=apellidos
+            s.ci=ci
+            s.nit=nit
+            s.codigos=my_string
+            s.salario=salario
+            s.lugar=lugar
+            s.fecha_inicio=fecha
+            db.session.commit()
+            flash('El contrato ha sido editado correctamente.')
+            return redirect('/contrato')
+        else:
+            lugar_2 = request.form.get('lugar_2')
+            date1 = request.form.get('date1')
+            cant = request.form.get('cant')
+            ps.nombre=nombre
+            ps.apellidos=apellidos
+            ps.ci=ci
+            ps.nit=nit
+            ps.codigos=my_string
+            ps.cant_trabajadores=cant
+            ps.lugar=lugar_2
+            ps.fecha_inicio=date1
+            db.session.commit()
+            flash('El contrato ha sido editado correctamente.')
+            return redirect('/contrato')
+    else:
+        return render_template('contract_edit.html')
 
 #Crear Tablas BD
 def create_all_tables():
