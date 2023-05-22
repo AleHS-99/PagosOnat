@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <title>TributaSoft</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="{{ url_for('static',filename='js/plugins/fontawesome-free/css/all.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='js/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='js/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='js/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/css/adminlte.min.css') }}">
+        <script src="{{ url_for('static',filename='js/plugins/jquery/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js//plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/pdfmake/pdfmake.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/pdfmake/vfs_fonts.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/js/adminlte.min.js') }}"></script>
+      </head>
+      <body>
+        <style>
+            html, body{
+              background-color: rgb(91, 94, 98);
+            }
+            .navbar-brand {
+            display: flex;
+            align-items: center;
+            }
+
+            .navbar-brand img {
+            border-radius: 50%;
+            }
+        </style>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{{ url_for('contrat_base') }}">
+                <img src="{{ url_for('static',filename='icon/undo_30px.png') }}" alt="Icono" width="40" height="40" class="d-inline-block align-text-top">
+                 &nbsp; Atr&aacute;s
+              </a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" style="margin-top: 2px;">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin_p',tipo='persona',id=obj.id) }}">NIT: {{obj.nit}}</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('impFijo', tipo='persona', id=obj.id) }}">Importes Fijos</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('contrat_base') }}">Pagos</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+
+        {% block content %}{% endblock %}
+
+      </body>
+</html>

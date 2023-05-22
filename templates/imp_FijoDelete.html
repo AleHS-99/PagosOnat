@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content">
+    <p></p>
+    <div class="container">
+    <div class="row">
+    <div class="col-12">
+    <form method="post">
+        <div class="card card-default">
+            <div class = "card-header">
+                <h3 class="card-title">
+                    Eliminar Importe Fijo
+                    <i class="fas fa-ban"></i>
+                    
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-dismissible alert-default-danger">
+                    ¿Estas seguro de que deseas eliminar la el importe del c&oacute;digo {{nit}}
+            </div>
+    
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary btn-flat">
+                    <i class="fa fa-save"></i> Si, Eliminar
+                </button>
+                <a href="{{ url_for('impFijoAdd',tipo='persona',id=obj.id) }}" class="btn btn-flat btn-info">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+{% endblock %}

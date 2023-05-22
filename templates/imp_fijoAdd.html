@@ -1,0 +1,31 @@
+{% extends 'admin_basePersona.html' %}
+
+{% block content %}
+
+<p></p>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-plus"></i> A&ntilde;adir Importe Fijo</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                    <div class="form-group w-100"">
+                        <label for="codigos">C&oacute;digos por los que tributa:</label>
+                        <select name="codigos" class="form-control">
+                            {% for codigo in lista %}
+                                <option value="{{ codigo.0 }}"> {{ codigo.0 }} --{{ codigo.1 }}--</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group w-100">
+                        <label for="importe">Importe Fijo:</label>
+                        <input type="number" step="0.01" min="0" class="form-control" placeholder="0" name="importe" id="importe">
+                    </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

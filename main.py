@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flaskwebgui import FlaskUI
 from werkzeug.serving import WSGIRequestHandler
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -91,6 +92,20 @@ class ContratoDueno(db.Model):
     fecha_inicio = db.Column(db.String(100))
     lugar = db.Column(db.String(250))
     cant_trabajadores = db.Column(db.Integer)
+
+class ImpFijo(db.Model):
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    codigo = db.Column(db.String(50),nullable=False)
+    imp = db.Column(db.Float)
+    nit = db.Column(db.String(50))
+
+class PagoPersona(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    persona_nit = db.Column(db.String(50))
+    codigo = db.Column(db.String(50))
+    importe = db.Column(db.Float)
+    fecha = db.Column(db.String(50))
+    estado = db.Column(db.Boolean, default=False)
 
 #Pagina Principal
 @app.route('/')
@@ -460,12 +475,199 @@ def contract_edit(tipo,id):
     else:
         return render_template('contract_edit.html')
 
+@app.route('/contrato/personaAdmin/<string:tipo>/<int:id>', methods=['GET', 'POST'])
+def admin_p(tipo,id):
+    if tipo == 'persona':
+        p = ContratoPersona.query.get_or_404(id)
+        pagosPersona(id)
+        now = datetime.now()
+        fecha_fin = ""
+        fecha_inicio = ''
+        if now.month<10:
+            fecha_inicio = '0{}'.format(now.month)
+            fecha_fin = "{}-0{}-{}".format(obtener_dias_del_mes(str(now.month),now.year),now.month,now.year)
+        else:
+            fecha_inicio = '{}'.format(now.month)
+            fecha_fin = "{}-{}-{}".format(obtener_dias_del_mes(str(now.month),now.year),now.month,now.year) 
+        registros = PagoPersona.query.filter(PagoPersona.fecha.between(fecha_inicio, fecha_fin)).all()
+        return render_template('admin_persona.html',obj=p, pagos = registros)
+    
+@app.route('/contrato/personaAdmin/impfijo/<string:tipo>/<int:id>')
+def impFijo(tipo,id):
+    if tipo == 'persona':
+        p = ContratoPersona.query.get_or_404(id)
+        lista = ImpFijo.query.filter_by(nit=p.nit).all()
+        return render_template('imp_fijo.html',obj=p, imp=lista)
+    else:
+        return redirect(url_for('admin_p',tipo=tipo,id=id))
+    
+@app.route('/contrato/personaAdmin/impfijo/add/<string:tipo>/<int:id>', methods=['GET', 'POST'])
+def impFijoAdd(tipo,id):
+    if tipo == 'persona':
+        p = ContratoPersona.query.get_or_404(id)
+        if request.method=='GET':
+            cs = CodigoSimple.query.all()
+            cps = CodigoPagoSalarial.query.all()
+            cpm = CodigoPagoMora.query.all()
+            lista = []
+            for i in cs:
+                lista.append((i.codigo,i.descripcion))
+            for i in cps:
+                lista.append((i.codigo,i.descripcion))
+            for i in cpm:
+                lista.append((i.codigo,i.descripcion))
+            return render_template('imp_fijoAdd.html',obj=p,lista=lista)
+        elif request.method=='POST':
+            cod = request.form.get('codigos')
+            imp = request.form.get('importe')
+            n_importe = ImpFijo(codigo=cod,imp=imp,nit=p.nit)
+            db.session.add(n_importe)
+            db.session.commit()
+            flash('El importe fijo ha sido añadido correctamente.')
+            return redirect(url_for('impFijo', tipo=tipo, id=id))
+    else:
+        return redirect(url_for('impFijo',tipo=tipo,id=id))
+    
+@app.route('/contrato/personaAdmin/impfijo/edit/<string:tipo>/<int:id>/<int:second>', methods=['GET', 'POST'])
+def impFijoEdit(tipo,id,second):
+    if tipo == 'persona':
+        p = ContratoPersona.query.get_or_404(id)
+        s = ImpFijo.query.get_or_404(second)
+        if request.method=='GET':
+            cs = CodigoSimple.query.all()
+            cps = CodigoPagoSalarial.query.all()
+            cpm = CodigoPagoMora.query.all()
+            lista = []
+            for i in cs:
+                lista.append((i.codigo,i.descripcion))
+            for i in cps:
+                lista.append((i.codigo,i.descripcion))
+            for i in cpm:
+                lista.append((i.codigo,i.descripcion))
+            return render_template('imp_fijoEdit.html',obj=p,lista=lista,value=s)
+        elif request.method=='POST':
+            cod = request.form.get('codigos')
+            imp = request.form.get('importe')
+            s.codigo=cod
+            s.imp=imp
+            s.nit = p.nit
+            db.session.commit()
+            flash('El importe fijo ha sido editado correctamente.')
+            return redirect(url_for('impFijo', tipo=tipo, id=id))
+    else:
+        return redirect(url_for('impFijo',tipo=tipo,id=id))
+
+@app.route('/contrato/personaAdmin/impfijo/delete/<string:tipo>/<int:id>/<int:second>', methods=['GET', 'POST'])
+def imp_FijoDelete(tipo,id,second):
+    if tipo == 'persona':
+        p = ContratoPersona.query.get_or_404(id)
+        s = ImpFijo.query.get_or_404(second)
+        
+    if request.method=='GET':
+        return render_template('imp_FijoDelete.html', nit=s.codigo, obj=p)
+    elif request.method=='POST':
+        db.session.delete(s)
+        db.session.commit()
+        flash('El Importe ha sido eliminado correctamente.')
+        return redirect(url_for('impFijo', tipo=tipo, id=id))
+    else:
+        pass
+
 #Crear Tablas BD
 def create_all_tables():
     with app.app_context():
         db.create_all()
 
+#Aqui se comprueban los apgos de la persona
+def pagosPersona(id):
+    j = ContratoPersona.query.get_or_404(id)
+    lista = ImpFijo.query.filter_by(nit=j.nit).all()
+    pagos = PagoPersona.query.filter_by(persona_nit=j.nit).all()
+    now = datetime.now()
+    mes_actual = 0
+    if now.month<10:
+        mes_actual = '0{}'.format(now.month)
+    else:
+        mes_actual = '{}'.format(now.month)
+    
+    codigos = []
+    for i in lista:
+        codigos.append(i.codigo)
+    cod = 0
+    for i in j.codigos.split(','):
+        if not i in codigos:
+            cod = i
+    
+    if not cod == 0:
+        cod_sal = CodigoPagoSalarial.query.filter_by(codigo=cod).first()
+        imp = 0
+        if j.salario <= cod_sal.monto_excento:
+            pass
+        elif j.salario > cod_sal.monto_excento and j.salario <= cod_sal.monto_pago1:
+            decimal_porcentaje = cod_sal.porcentaje1 / 100
+            imp = j.salario*decimal_porcentaje
+        elif j.salario > cod_sal.monto_pago1 and j.salario <= cod_sal.monto_pago2:
+            decimal_porcentaje = cod_sal.porcentaje2 / 100
+            imp = j.salario*decimal_porcentaje
+        elif j.salario > cod_sal.monto_pago2 and j.salario <= cod_sal.monto_pago3:
+            decimal_porcentaje = cod_sal.porcentaje3 / 100
+            imp = j.salario*decimal_porcentaje
+        elif j.salario > cod_sal.monto_pago3 and j.salario <= cod_sal.monto_pago4:
+            decimal_porcentaje = cod_sal.porcentaje4 / 100
+            imp = j.salario*decimal_porcentaje
+        elif j.salario > cod_sal.monto_pago4 and j.salario <= cod_sal.monto_pago5:
+            decimal_porcentaje = cod_sal.porcentaje5 / 100
+            imp = j.salario*decimal_porcentaje
+        elif j.salario > cod_sal.monto_pago6:
+            decimal_porcentaje = cod_sal.porcentaje6 / 100
+            imp = j.salario*decimal_porcentaje
+            
+        if not imp == 0:
+            r = PagoPersona.query.filter_by(persona_nit=j.nit, codigo=cod).order_by(PagoPersona.id.desc()).first()
+            if r:
+                if not mes_actual in r.fecha[3:5]:
+                    nuevo_pago = PagoPersona(persona_nit=j.nit, codigo=cod,
+                                            fecha="{}-{}-{}".format(j.fecha_inicio[:2],mes_actual,now.year),
+                                            importe=imp,estado=False)
+                    db.session.add(nuevo_pago)
+                    db.session.commit()
+            else:
+                nuevo_pago = PagoPersona(persona_nit=j.nit, codigo=cod,
+                                            fecha="{}-{}-{}".format(j.fecha_inicio[:2],mes_actual,now.year),
+                                            importe=imp,estado=False)
+                db.session.add(nuevo_pago)
+                db.session.commit()
 
+    for imp_fijo in lista:
+        r = PagoPersona.query.filter_by(persona_nit=j.nit, codigo=imp_fijo.codigo).order_by(PagoPersona.id.desc()).first()
+        if r:
+            if not mes_actual in r.fecha[3:5]:
+                nuevo_pago = PagoPersona(persona_nit=j.nit, codigo=imp_fijo.codigo,
+                                        fecha="{}-{}-{}".format(j.fecha_inicio[:2],mes_actual,now.year),
+                                        importe=imp_fijo.imp,estado=False)
+                db.session.add(nuevo_pago)
+                db.session.commit()
+        else:
+            nuevo_pago = PagoPersona(persona_nit=j.nit, codigo=imp_fijo.codigo,
+                                        fecha="{}-{}-{}".format(j.fecha_inicio[:2],mes_actual,now.year),
+                                        importe=imp_fijo.imp,estado=False)
+            db.session.add(nuevo_pago)
+            db.session.commit()
+    
+def es_bisiestro(anio:int)->bool:
+    return anio % 4 == 0 and (anio % 100 != 0 or anio % 400 == 0) 
+
+def obtener_dias_del_mes(mes:str,anio:int)->int:
+    if mes in ['4','6','9','11']:
+        return 30
+    if mes == '2':
+        if es_bisiestro(anio):
+            return 29
+        else:
+            return 28
+    else:
+        return 31
+    
 if __name__ == '__main__':
     create_all_tables()
     #app.run()
