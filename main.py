@@ -481,16 +481,29 @@ def admin_p(tipo,id):
         p = ContratoPersona.query.get_or_404(id)
         pagosPersona(id)
         now = datetime.now()
+        codigos = len(p.codigos.split(','))
+        dias = 0
+        pagos=0
+        hoy = ''
         fecha_fin = ""
         fecha_inicio = ''
         if now.month<10:
             fecha_inicio = '0{}'.format(now.month)
             fecha_fin = "{}-0{}-{}".format(obtener_dias_del_mes(str(now.month),now.year),now.month,now.year)
+            hoy = "{}-0{}-{}".format(now.day,now.month,now.year)
         else:
             fecha_inicio = '{}'.format(now.month)
             fecha_fin = "{}-{}-{}".format(obtener_dias_del_mes(str(now.month),now.year),now.month,now.year) 
+            hoy = "{}-{}-{}".format(now.day,now.month,now.year) 
         registros = PagoPersona.query.filter(PagoPersona.fecha.between(fecha_inicio, fecha_fin)).all()
-        return render_template('admin_persona.html',obj=p, pagos = registros)
+        for i in registros:
+            if not i.estado:
+                dias = dias_de_retraso(i.fecha)
+            else:
+                if i.fecha[3:5]==hoy[3:5] and i.fecha[6:]==hoy[6:]:
+                    pagos+=1
+                
+        return render_template('admin_persona.html',obj=p, pagos = registros, hoy=hoy,atraso=dias,cod=pagos,total=codigos)
     
 @app.route('/contrato/personaAdmin/impfijo/<string:tipo>/<int:id>')
 def impFijo(tipo,id):
@@ -667,9 +680,21 @@ def obtener_dias_del_mes(mes:str,anio:int)->int:
             return 28
     else:
         return 31
-    
+
+def dias_de_retraso(fecha):
+    fecha_str = datetime.strptime(fecha, '%d-%m-%Y').date()
+    fecha_actual = datetime.now().date()
+    dias_retraso = (fecha_actual - fecha_str).days
+    if dias_retraso < 0:
+        return 0
+    else:
+        return dias_retraso
+
 if __name__ == '__main__':
     create_all_tables()
     #app.run()
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
     ui.run()
+
+
+#dame una funcion a la cual le voy a pasar una fecha y me calcule los dias de atraso
