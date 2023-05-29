@@ -20,6 +20,7 @@
         <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
         <script src="{{ url_for('static',filename='js/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <script src="{{ url_for('static',filename='js/js/adminlte.min.js') }}"></script>
+        
       </head>
       <body>
         <style>
@@ -51,9 +52,6 @@
                   </li>
                   <li class="nav-item">
                     <a class="nav-link active" href="{{ url_for('impFijo', tipo='persona', id=obj.id) }}">Importes Fijos</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('contrat_base') }}">Pagos</a>
                   </li>
                 </ul>
               </div>

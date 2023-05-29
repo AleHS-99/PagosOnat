@@ -1,7 +1,15 @@
 {% extends 'admin_basePersona.html' %}
 
 {% block content %}
+<style>
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+  margin-right: 5px;
+}
+.dataTables_filter input {
+border-radius: 10px;
+}
 
+</style>
 <div class="content-fluid">
     <p></p>
     <div class="container">
@@ -13,7 +21,7 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body table-responsive p-0" style="height: 300px;">
-                <table class="table table-head-fixed text-nowrap table-hover">
+                <table class="table table-head-fixed text-nowrap">
                     <thead>
                     <tr>
                         <th>Fecha Limite</th>
@@ -28,16 +36,16 @@
                                 {%if hoy == i.fecha or hoy[3:5]>i.fecha[3:5] or hoy[:3]>i.fecha[:3] and hoy[3:5]==i.fecha[3:5] %}
                                     <tr class="bg-red">
                                         <td>{{i.fecha}}</td>
-                                        <td>{{i.codigo}}</td>
+                                        <td id="cod">{{i.codigo}}</td>
                                         <td>{{i.importe}}</td>
-                                        <td>Pagar <i class="fas fa-arrow-right"></i></td>
+                                        <td><a id="pagado" href="#">Pagado <i class="fas fa-arrow-right"></i></a></td>
                                     </tr>
                                 {%else%}
                                     <tr class="bg-warning">
                                         <td>{{i.fecha}}</td>
-                                        <td>{{i.codigo}}</td>
+                                        <td id="cod">{{i.codigo}}</td>
                                         <td>{{i.importe}}</td>
-                                        <td>Pagar <i class="fas fa-arrow-right"></i></td>
+                                        <td><a id="pagado" href="#">Pagado <i class="fas fa-arrow-right"></i></a></td>
                                     </tr>
                                 {%endif%}
                             {%endif%}
@@ -104,8 +112,85 @@
                     </div>
                 </div>
             </div>
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Listado de Pagos Realizados</h3>
+                </div>
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                      <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>C&oacute;digo</th>
+                        <th>Importe</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        {%for i in todas %}
+                            {%if i.estado%}
+                                <tr>
+                                  <td>
+                                    {{i.fecha}}
+                                  <td>
+                                    {{i.codigo}}
+                                  </td>
+                                  <td>
+                                    {{i.importe}}
+                                  </td>
+                                </tr>
+                            {%endif%}
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
         </div>
     </div>
 </div>
+<script>
+  $(function () {
+  $("#example1").DataTable({
+    "responsive": true, "lengthChange": false, "autoWidth": false,
+    "dom":'<"row"<"col-sm-12"f>>' +
+         '<"row"<"col-sm-12"t>>' +
+         '<"row"<"col-sm-12"i><"col-sm-12"p>>',
+    "language": {
+      "search": "Buscar",
+    "emptyTable": "No hay datos disponibles en la tabla", // cambia el mensaje para cuando la tabla está vacía
+    "info": "Mostrando _START_ a _END_ de _TOTAL_ filas", // cambia el mensaje de información de la tabla
+    "infoEmpty": "Mostrando 0 a 0 de 0 filas", // cambia el mensaje de información de la tabla cuando no hay datos
+    "infoFiltered": "(filtrado de _MAX_ filas totales)",
+    "paginate": {
+      "next": "Siguiente", // cambia el texto del botón para ir a la siguiente página
+      "previous": "Anterior" // cambia el texto del botón para ir a la página anterior
+    }
+  },
+  "initComplete": function(settings, json) {
+    $('.dataTables_filter input').addClass('form-control');
+  }
+  }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+});
+</script>
 
+<script>
+  $(document).ready(function() {
+    $("#pagado").on("click", function(event) {
+      event.preventDefault();
+      var codigo = $("#cod").text();
+      $.ajax({
+        url: window.location.pathname,
+        method: "POST",
+        data: {action: 'cod', codigo: codigo },
+        success: function(response) {
+          location.reload();
+        },
+        error: function(error) {
+          console.log(error);
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

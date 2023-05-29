@@ -496,14 +496,26 @@ def admin_p(tipo,id):
             fecha_fin = "{}-{}-{}".format(obtener_dias_del_mes(str(now.month),now.year),now.month,now.year) 
             hoy = "{}-{}-{}".format(now.day,now.month,now.year) 
         registros = PagoPersona.query.filter(PagoPersona.fecha.between(fecha_inicio, fecha_fin)).all()
+        todos = PagoPersona.query.filter_by(persona_nit=p.nit,estado=True).order_by(PagoPersona.id.desc()).all()
         for i in registros:
             if not i.estado:
                 dias = dias_de_retraso(i.fecha)
             else:
                 if i.fecha[3:5]==hoy[3:5] and i.fecha[6:]==hoy[6:]:
                     pagos+=1
-                
-        return render_template('admin_persona.html',obj=p, pagos = registros, hoy=hoy,atraso=dias,cod=pagos,total=codigos)
+        if request.method=='GET':        
+            return render_template('admin_persona.html',obj=p, pagos = registros, hoy=hoy,atraso=dias,cod=pagos,total=codigos, todas=todos)
+        elif request.method=='POST':
+            try:
+                action = request.form.get('action')
+                if action == 'cod':
+                    cod = request.form.get('codigo')
+                    repo = PagoPersona.query.filter_by(persona_nit=p.nit,estado=False,codigo=cod).order_by(PagoPersona.id.desc()).first()
+                    repo.estado=True
+                    db.session.commit()
+                    return redirect(url_for('admin_p',tipo=tipo,id=id))
+            except Exception as e:
+                print(e)
     
 @app.route('/contrato/personaAdmin/impfijo/<string:tipo>/<int:id>')
 def impFijo(tipo,id):
@@ -695,6 +707,3 @@ if __name__ == '__main__':
     #app.run()
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
     ui.run()
-
-
-#dame una funcion a la cual le voy a pasar una fecha y me calcule los dias de atraso
